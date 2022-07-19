@@ -1,0 +1,21 @@
+--regex-Asm=/^ *!macro (\w+).*$/\1/m/
+--langdef=ForthAsm{base=Asm}
+--kinddef-ForthAsm=a,asm,Builtin
+--regex-ForthAsm=/\+BACKLINK +"([^"]*)"/\1/a/
+--langdef=Forth
+--map-Forth=+.fs
+--kinddef-Forth=c,colon,Colon
+--kinddef-Forth=A,code,Code
+--kinddef-Forth=v,var,Variable
+--kinddef-Forth=V,value,Value
+--kinddef-Forth=C,constant,Constant
+--kinddef-Forth=w,word,Word
+--mline-regex-Forth=/(\s|^)\(\s[^)]\)/\1/{exclusive}{placeholder}
+--regex-Forth=/(\s|^)\\\s.*$//{exclusive}{placeholder}
+--regex-Forth=/(\s|^):\s+(\S*)/\2/c/{exclusive}
+--regex-Forth=/(\s|^)code\s+(\S*)/\2/A/
+--regex-Forth=/(\s|^)variable\s+(\S*)/\2/v/
+--regex-Forth=/(\s|^)value\s+(\S*)/\2/V/
+--regex-Forth=/(\s|^)constant\s+(\S*)/\2/C/
+--regex-Forth=/(\s|^)create\s+(\S*)/\2/C/
+--regex-Forth=/(\s|^)header\s+(\S*)/\2/w/
