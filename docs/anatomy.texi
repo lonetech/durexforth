@@ -1,0 +1,76 @@
+@node Word Anatomy
+@appendix Word Anatomy
+
+@menu
+* Inspecting a Word::
+* Dictionary::
+* Code::
+@end menu
+
+@node Inspecting a Word
+@section Inspecting a Word
+Let us define a word and see what it gets compiled to.
+
+@verbatim
+: bg $d020 c! ;
+@end verbatim
+
+Information about the word is split into two areas of memory, the
+dictionary and the code/data space. Code and data are placed in an
+upward-growing segment starting at $801, and the dictionary grows
+downward from @code{top}, default $6fff. @code{latest} points to the
+last dictionary record. A dictionary record consists of a counted string
+with flags, and an execution token (XT).
+
+@node Dictionary
+@section Dictionary
+To inspect the dictionary entry, type @code{latest dump}. You should see
+something like this:
+
+@comment The code tags mark sections that were red. Texinfo emphasis tags switched fonts. 
+@example
+6228  @code{02 42 47 fd 39} 28 39 01 @code{.bg.9}(9.
+...
+@end example
+
+The first byte, "02", is the length of "bg" name string. After that, the
+string "bg" follows. (42 = 'b', 47 = 'g'). The final two bytes contain
+the execution token of @code{bg}, starting at $39fd.
+
+The name length byte is also used to store special attributes of the
+word. Bit 7 is "immediate" flag, which means that the word should
+execute immediately instead of being compiled into word definitions.
+("(" is such an example of an immediate word that does not get
+compiled.) Bit 6 is the "no-tail-call-elimination" flag, which makes
+sure that tail call elimination (the practice of replacing jsr/rts with
+jmp) is not performed if this word is the jsr target. Since bg does not
+have these flags set, bits 7 and 6 are both clear.
+
+@node Code
+@section Code
+We saw that the "bg" execution token is $39fd. To inspect the code, type
+@code{$39fd dump} or @code{latest >xt dump}.
+
+@example
+39fd  @code{20 15 11 20 d0 4c 0e 09  .. Pl..}
+...
+@end example
+
+The code section contains pure 6502 machine code.
+
+@table @code
+@item 20 15 11 ( jsr $1115 )
+
+$1115 is the address of the @code{lit} code. @code{lit} copies the two
+following bytes to parameter stack.
+
+@item 20 d0 ( $d020 )
+
+The parameter to the @code{lit} word. When executed, @code{lit} will add
+$d020 to the parameter stack.
+
+@item 4c 0e 09 ( jmp $90e )
+
+$90e is the address of the @code{c!} code.
+
+@end table

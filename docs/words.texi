@@ -1,0 +1,1329 @@
+@node Forth Words
+@chapter Forth Words
+
+@menu
+* Stack Manipulation::
+* Utility::
+* Mathematics::
+* Double::
+* Logic::
+* Memory::
+* Compiling::
+* Word List::
+* Values::
+* Variables::
+* Control Flow::
+* Input::
+* Editing::
+* Strings::
+* Number Formatting::
+* Vectored Execution::
+* Debugging::
+* System State::
+* Disk I/O::
+* Compatibility::
+* Kernel Calls::
+* Turn-key Utilities::
+@end menu
+
+@node Stack Manipulation
+@set SECTION Stack Manipulation
+@section @value{SECTION}
+@deffn Stack drop ( a -- )
+
+Drop top of stack.
+
+@end deffn
+@deffn Stack dup ( a -- a a )
+
+Duplicate top of stack.
+
+@end deffn
+@deffn Stack swap ( a b -- b a )
+
+Swap top stack elements.
+
+@end deffn
+@deffn Stack over ( a b -- a b a )
+
+Make a copy of the second item and push it on top.
+
+@end deffn
+@deffn Stack rot ( a b c -- b c a )
+
+Rotate the third item to the top.
+
+@end deffn
+@deffn Stack -rot ( a b c -- c a b )
+
+rot rot
+
+@end deffn
+@deffn Stack 2drop ( a b -- )
+
+Drop two topmost stack elements.
+
+@end deffn
+@deffn Stack 2dup ( a b -- a b a b )
+
+Duplicate two topmost stack elements.
+
+@end deffn
+@deffn Stack ?dup ( a -- a a? )
+
+Dup a if a differs from 0.
+
+@end deffn
+@deffn Stack nip ( a b -- b )
+
+swap drop
+
+@end deffn
+@deffn Stack tuck ( a b -- b a b )
+
+dup -rot
+
+@end deffn
+@deffn Stack pick ( x@sub{u} ... x@sub{1} x@sub{0} u -- x@sub{u} ... x@sub{1} x@sub{0} x@sub{u} )
+
+Pick from stack element with depth u to top of stack.
+
+@end deffn
+@deffn Stack >r ( a -- )
+
+Move value from top of parameter stack to top of return stack.
+
+@end deffn
+@deffn Stack r> ( -- a )
+
+Move value from top of return stack to top of parameter stack.
+
+@end deffn
+@deffn Stack r@@ ( -- a )
+
+Copy value from top of return stack to top of parameter stack.
+
+@end deffn
+@deffn Stack depth ( -- n)
+
+@code{n} is the number of single-cell values contained in the data stack
+before @code{n} was placed on the stack.
+
+@end deffn
+@deffn Stack lsb ( -- addr )
+
+The top address of the LSB parameter stack.
+
+@end deffn
+@deffn Stack msb ( -- addr )
+
+The top address of the MSB parameter stack.
+@end deffn
+
+@node Utility
+@set SECTION Utility
+@section @value{SECTION}
+@deffn Utility . ( n -- )
+
+Prints top value of stack as signed number.
+@end deffn
+
+@deffn Utility u. ( u -- )
+
+Prints top value of stack as unsigned number.
+@end deffn
+
+@deffn Utility .s
+
+See stack contents.
+@end deffn
+
+@deffn Utility emit ( a -- )
+
+Prints top value of stack as a PETSCII character. Example:
+@code{'q' emit}
+@end deffn
+
+@deffn Utility £
+
+Comment to end of line. (Used on C64/PETSCII.)
+@end deffn
+
+@deffn Utility \
+
+Comment to end of line. (Used when cross-compiling from PC/ASCII.)
+@end deffn
+
+@deffn Utility (
+
+Multiline comment. Ignores everything until a ).
+@end deffn
+
+@deffn Utility bl ( -- char )
+
+Gives the PETSCII character for a space.
+@end deffn
+
+@deffn Utility space
+
+Displays one space.
+@end deffn
+
+@deffn Utility spaces ( n -- )
+
+Displays n spaces.
+@end deffn
+
+@deffn Utility page
+
+Clears the screen.
+@end deffn
+
+@deffn Utility rvs
+
+Reverse screen output.
+@end deffn
+
+@node Mathematics
+@set SECTION Mathematics
+@section @value{SECTION}
+@deffn Mathematics 1+ ( a -- b )
+
+Increase top of stack value by 1.
+@end deffn
+
+@deffn Mathematics 1- ( a -- b )
+
+Decrease top of stack value by 1.
+@end deffn
+
+@deffn Mathematics 2+ ( a -- b )
+
+Increase top of stack value by 2.
+@end deffn
+
+@deffn Mathematics 2* ( a -- b )
+
+Multiply top of stack value by 2.
+@end deffn
+
+@deffn Mathematics 2/ ( a -- b )
+
+Divide top of stack value by 2.
+@end deffn
+
+@deffn Mathematics 100/ ( a -- b )
+
+Divides top of stack value by @code{\$100}.
+@end deffn
+
+@deffn Mathematics +! ( n a -- )
+
+Add n to memory address a.
+@end deffn
+
+@deffn Mathematics + ( a b -- c )
+
+Add a and b.
+@end deffn
+
+@deffn Mathematics - ( a b -- c )
+
+Subtract b from a.
+@end deffn
+
+@deffn Mathematics * ( a b -- c )
+
+Multiply a with b.
+@end deffn
+
+@deffn Mathematics / ( a b -- q )
+
+Divide a with b using floored division.
+@end deffn
+
+@deffn Mathematics /mod ( a b -- r q )
+
+Divide a with b, giving remainder r and quotient q.
+@end deffn
+
+@deffn Mathematics mod ( a b -- r )
+
+Remainder of a divided by b.
+@end deffn
+
+@deffn Mathematics */ ( a b c -- q )
+
+Multiply a with b, then divide by c, using a 32-bit intermediary.
+@end deffn
+
+@deffn Mathematics */mod ( a b c -- r q )
+
+Like */, but also keeping remainder r.
+@end deffn
+
+@deffn Mathematics 0< ( a -- b )
+
+Is a negative?
+@end deffn
+
+@deffn Mathematics negate ( a -- b )
+
+Negates a.
+@end deffn
+
+@deffn Mathematics abs ( a -- b )
+
+Gives absolute value of a.
+@end deffn
+
+@deffn Mathematics min ( a b -- c )
+
+Gives the lesser of a and b.
+@end deffn
+
+@deffn Mathematics max ( a b -- c )
+
+Gives the greater of a and b.
+@end deffn
+
+@deffn Mathematics within ( n lo hi -- flag )
+
+Returns true if lo @math{<=} n @math{<} hi.
+@end deffn
+
+@deffn Mathematics @math{<} ( n1 n2 -- flag )
+
+Is n1 less than n2? (Signed.)
+@end deffn
+
+@deffn Mathematics @math{>} ( n1 n2 -- flag )
+
+Is n1 greater than n2? (Signed.)
+@end deffn
+
+@deffn Mathematics u@math{<} ( u1 u2 -- flag )
+
+Is u1 less than u2? (Unsigned.)
+@end deffn
+
+@deffn Mathematics u@math{>} ( u1 u2 -- flag )
+
+Is u1 greater than u2? (Unsigned.)
+@end deffn
+
+@deffn Mathematics lshift ( a b -- c )
+
+Binary shift a left by b.
+@end deffn
+
+@deffn Mathematics rshift ( a b -- c )
+
+Binary shift a right by b.
+@end deffn
+
+@deffn Mathematics base (variable)
+
+Points to the cell that holds the numerical base.
+@end deffn
+
+@deffn Mathematics decimal
+
+Sets the numerical base to 10.
+@end deffn
+
+@deffn Mathematics hex
+
+Sets the numerical base to 16.
+@end deffn
+
+@node Double
+@set SECTION Double
+@section @value{SECTION}
+The following words use double-cell integers. On the stack, the cell
+containing the most significant part of a double-cell integer is above
+the cell containing the least significant part.
+
+@deffn Double dabs ( d -- ud )
+
+Produces the absolute value of d.
+@end deffn
+
+@deffn Double dnegate ( d -- d )
+
+Negates the double-cell integer d.
+@end deffn
+
+@deffn Double s@math{>}d ( n -- d )
+
+Converts the number n to the double-cell number d.
+@end deffn
+
+@deffn Double m+ ( d n -- d )
+
+Add n to double-cell number d.
+@end deffn
+
+@deffn Double m* ( a b -- d )
+
+Multiply a with b, producing a double-cell value.
+@end deffn
+
+@deffn Double um* ( a b -- ud )
+
+Multiply a with b, giving the unsigned double-cell number ud.
+@end deffn
+
+@deffn Double um/mod ( ud n -- r q )
+
+Divide double-cell number ud by n, giving remainder r and quotient q.
+Values are unsigned.
+@end deffn
+
+@deffn Double fm/mod ( d n -- r q )
+
+Divide double-cell number d by n, giving the floored quotient q and the
+remainder r. Values are signed.
+@end deffn
+
+@node Logic
+@set SECTION Logic
+@section @value{SECTION}
+@deffn Logic 0= ( a -- flag)
+
+Is a equal to zero?
+@end deffn
+
+@deffn Logic 0@math{<>} ( a -- flag )
+
+Is a not equal to 0?
+@end deffn
+
+@deffn Logic = ( a b -- flag )
+
+Is a equal to b?
+@end deffn
+
+@deffn Logic @math{<>} ( a b -- flag )
+
+Does a differ from b?
+@end deffn
+
+@deffn Logic and ( a b -- c )
+
+Binary and.
+@end deffn
+
+@deffn Logic or ( a b -- c )
+
+Binary or.
+@end deffn
+
+@deffn Logic xor ( a b -- c )
+
+Binary exclusive or.
+@end deffn
+
+@deffn Logic invert ( a -- b )
+
+Flip all bits of a.
+@end deffn
+
+@node Memory
+@set SECTION Memory
+@section @value{SECTION}
+@deffn Memory ! ( value address -- )
+
+Store 16-bit value at address.
+@end deffn
+
+@deffn Memory @@ ( address -- value )
+
+Fetch 16-bit value from address.
+@end deffn
+
+@deffn Memory c! ( value address -- )
+
+Store 8-bit value at address.
+@end deffn
+
+@deffn Memory c@@ ( address -- value )
+
+Fetch 8-bit value from address.
+@end deffn
+
+@deffn Memory fill ( addr len char -- )
+
+Fill range [addr, len + addr) with char.
+@end deffn
+
+@deffn Memory move ( src dst len -- )
+
+Copies a region of memory @code{len} bytes long, starting at @code{src},
+to emory beginning at @code{dst}.
+@end deffn
+
+@node Compiling
+@set SECTION Compiling
+@section @value{SECTION}
+@deffn {@value{SECTION}} : (C: "@math{<}spaces@math{>}name" -- )
+
+Define the word with the given name and enter compilation state.
+@end deffn
+
+@deffn {@value{SECTION}} :noname ( -- xt )
+
+Create an execution token and enter compilation state.
+@end deffn
+
+@deffn {@value{SECTION}} ; ( -- )
+
+End the current definition, allow it to be found in the dictionary and
+go back to interpretation state.
+@end deffn
+
+@deffn {@value{SECTION}} code ( "@math{<}spaces@math{>}name" -- )
+
+Start assembling a new word.
+@end deffn
+
+@deffn {@value{SECTION}} ;code
+
+End assembler.
+@end deffn
+
+@deffn {@value{SECTION}} , ( n -- )
+
+Write word on stack to @code{here} position and increase @code{here} by
+2.
+@end deffn
+
+@deffn {@value{SECTION}} c, ( n -- )
+
+Write byte on stack to @code{here} position and increase @code{here} by
+1.
+@end deffn
+
+@deffn {@value{SECTION}} allot ( n -- )
+
+Add n bytes to the body of the most recently defined word.
+@end deffn
+
+@deffn {@value{SECTION}} literal ( n -- )
+
+Compile a value from the stack as a literal value. Typical use:
+@code{: x ... [ a b * ] literal ... ;}
+@end deffn
+
+@deffn {@value{SECTION}} [char] c
+
+Compile character @code{c} as a literal value.
+@end deffn
+
+@deffn {@value{SECTION}} [ ( -- )
+
+Leave compile mode. Execute the following words immediately instead of
+compiling them.
+@end deffn
+
+@deffn {@value{SECTION}} ] ( -- )
+
+Return to compile mode.
+@end deffn
+
+@deffn {@value{SECTION}} immediate
+
+Mark the most recently defined word as immediate (i.e. inside colon
+definitions, it will be executed immediately instead of compiled).
+@end deffn
+
+@deffn {@value{SECTION}} ['] name ( -- xt )
+
+Place name's execution token xt on the stack. The execution token
+returned by the compiled phrase @code{['] x} is the same value returned
+by @code{' x} outside of compilation state. Typical use:
+@code{: x ... ['] name ... ;}
+@end deffn
+
+@deffn {@value{SECTION}} compile, ( xt -- )
+
+Append @code{jsr xt} to the word being compiled. Typical use:
+@code{: recurse immed latest >xt compile, ;}
+@end deffn
+
+@deffn {@value{SECTION}} postpone xxx
+
+Compile the compilation semantics (instead of interpretation semantics)
+of xxx. Typical use:
+
+@verbatim
+: endif postpone then ; immediate
+: x ... if ... endif ... ;
+@end verbatim
+@end deffn
+
+@deffn {@value{SECTION}} header xxx
+
+Create a dictionary header with name @code{xxx}.
+@end deffn
+
+@deffn {@value{SECTION}} create xxx/does@math{>}
+
+Create a word creating word @code{xxx} with custom behavior specified
+after @code{does>}. For further description, see "Starting Forth."
+@end deffn
+
+@deffn {@value{SECTION}} state ( -- addr)
+
+addr is the address of a cell containing the compilation-state flag. It
+is 1 when compiling, otherwise 0.
+@end deffn
+
+@node Word List
+@set SECTION Word List
+@section @value{SECTION}
+@deffn {@value{SECTION}} hide xxx
+
+Removes @code{xxx} from the word list, while leaving its definition in
+place.
+@end deffn
+
+@deffn {@value{SECTION}} define ( "name" -- )
+
+Assign @code{here} as the execution token of word @code{name} and enter
+the compilation state.
+@end deffn
+
+@node Values
+@set SECTION Values
+@subsection Values
+Values are fast to read, slow to write. Use values for variables that
+are rarely changed.
+
+@deffn {@value{SECTION}} value foo ( a -- )
+
+Create value @var{foo} and set it to @var{a}.
+@end deffn
+
+@deffn {@value{SECTION}} constant bar ( a -- )
+
+Create constant value @var{bar} and set it to @var{a}.
+@end deffn
+
+@c format used to avoid indentation
+@format
+@code{@var{foo}}
+@end format
+
+Fetch value of @var{foo}.
+
+@deffn {@value{SECTION}} to foo ( a -- )
+
+Set value of @var{foo} to @var{a}.
+@end deffn
+
+@node Variables
+@set SECTION Variables
+@subsection Variables
+Variables are faster to write to than values.
+
+@deffn {@value{SECTION}} variable bar
+
+Define variable @var{bar}.
+@end deffn
+
+@deftypefn {@value{SECTION}} @var{bar} @@ 
+
+Fetch value of @var{bar}.
+@end deftypefn
+
+@deffn {@value{SECTION}} ! 
+
+@example
+1 bar !
+@end example
+
+Set @var{bar} to 1.
+@end deffn
+
+@node Control Flow
+@set SECTION Control Flow
+@section @value{SECTION}
+Control functions only work in compile mode, not in interpreter.
+They can be nested.
+
+@deffn {@value{SECTION}} if ( flag -- @emph{conditional execution} )
+@deffnx {@value{SECTION}} else ( -- @emph{conditional execution} )
+@deffnx {@value{SECTION}} then ( -- @emph{ends @code{if}} )
+
+@example
+condition IF true-part THEN rest
+@end example
+@example
+condition IF true-part ELSE false-part THEN rest
+@end example
+
+@end deffn
+
+@deffn {@value{SECTION}} do ( end start -- )
+@deffnx {@value{SECTION}} loop ( -- @emph{conditional loop} )
+@deffnx {@value{SECTION}} +loop ( n -- @emph{conditional loop} )
+
+Start a loop with index @code{i} and limit. Example:
+
+@verbatim
+: print0to7 8 0 do i . loop ;
+@end verbatim
+
+@code{+loop} uses a custom increment. Example:
+
+@verbatim
+( prints odd numbers from 1 to n )
+: printoddnumbers ( n -- ) 1 do i . 2 +loop ;
+@end verbatim
+@end deffn
+
+@deffn {@value{SECTION}} i
+@deffnx {@value{SECTION}} j
+
+Variables are to be used inside @code{do} .. @code{loop} constructs.
+@code{i} gives inner loop index, @code{j} gives outer loop index.
+@end deffn
+
+@deffn {@value{SECTION}} leave
+
+Leaves the innermost loop.
+@end deffn
+
+@deffn {@value{SECTION}} unloop
+
+Discards the loop-control parameters. Allows clean @code{exit} from
+within a loop.
+
+@verbatim
+: xx 0 0 do unloop exit loop ;
+@end verbatim
+@end deffn
+
+@deffn {@value{SECTION}} begin
+@deffnx {@value{SECTION}} again
+@deffnx {@value{SECTION}} until
+@deffnx {@value{SECTION}} while
+@deffnx {@value{SECTION}} repeat
+
+@table @code
+@item begin ... again
+Infinite loop.
+
+@item BEGIN @var{loop-part} @var{condition} UNTIL
+
+Loop until @var{condition} is true.
+
+@item BEGIN @var{condition} WHILE @var{loop-part} REPEAT
+
+Repeat @var{loop-part} while @var{condition} is true.
+@end table
+@end deffn
+
+@deffn {@value{SECTION}} exit
+
+Exit function. Typical use: @code{: X test IF EXIT THEN ... ;}
+@end deffn
+
+@deffn {@value{SECTION}} recurse
+
+Jump to the start of the word being compiled.
+@end deffn
+
+@deffn  {@value{SECTION}} case
+@deffnx {@value{SECTION}} of
+@deffnx {@value{SECTION}} endof
+@deffnx {@value{SECTION}} endcase
+
+Switch statements.
+
+@verbatim
+: tellno ( n -- )
+case
+1 of ." one" endof
+2 of ." two" endof
+3 of ." three" endof
+." other"
+endcase
+@end verbatim
+@end deffn
+
+@node Input
+@set SECTION Input
+@section @value{SECTION}
+@deffn {@value{SECTION}} key ( -- c )
+
+Gets one character from the keyboard.
+@end deffn
+
+@deffn {@value{SECTION}} key? ( -- flag )
+
+Returns true if a character is available for @code{key}.
+@end deffn
+
+@deffn {@value{SECTION}} getc ( -- c )
+
+Consumes the next character from the input buffer and increases
+@code{>in} by one. If no characters are available, the input buffer is
+refilled as needed.
+@end deffn
+
+@deffn {@value{SECTION}} char ( -- c )
+
+Parses the next word, delimited by a space, and puts its first character
+on the stack.
+@end deffn
+
+@deffn {@value{SECTION}} >in ( -- addr )
+
+Gives the address of a cell containing the offset in characters from the
+start of the input buffer to the start of the parse area.
+@end deffn
+
+@deffn {@value{SECTION}} refill ( -- )
+
+Attempts to fill the input buffer from the input source.
+@end deffn
+
+@deffn {@value{SECTION}} source ( -- caddr u )
+
+Gives the address of, and number of characters in, the input buffer.
+@end deffn
+
+@deffn {@value{SECTION}} source-id ( -- n )
+
+Returns 0 if current input is keyboard, -1 if it is a string from
+@code{evaluate}, or the current file id.
+@end deffn
+
+@deffn {@value{SECTION}} word ( delim -- addr )
+
+Reads a word from input, using delimiter @code{delim}, and puts the
+string address on the stack. If the delimiter is the space character,
+non-breaking space (hex a0) will also be treated as a delimiter.
+@end deffn
+
+@deffn {@value{SECTION}} parse-name ( name -- caddr u )
+
+Reads a word from input, delimited by whitespace. Skips leading spaces.
+@end deffn
+
+@deffn {@value{SECTION}} interpret ( -- value )
+
+Interprets a word from input and puts it on the stack.
+@end deffn
+
+@deffn {@value{SECTION}} accept ( addr u -- u )
+
+Receive a string of at most u characters into the buffer that starts at
+addr. Returns how many characters were received.
+@end deffn
+
+@deffn {@value{SECTION}} evaluate ( addr len -- )
+
+Makes DurexForth evaluate the given string.
+@end deffn
+
+@deffn {@value{SECTION}} abort
+
+Empties the data stack and performs @code{quit}.
+@end deffn
+
+@deffn {@value{SECTION}} abort" ccc" ( f -- )
+
+If @code{f} is true, print @code{ccc} and abort.
+
+Typical use: @code{: x ... test abort" error" ... ;}
+@end deffn
+
+@deffn {@value{SECTION}} quit
+
+Enters an endless loop where DurexForth interprets Forth commands from
+the keyboard. The word is named "quit" since it can be used to quit a
+program. It also does cleanup tasks like resetting I/O.
+@end deffn
+
+@node Editing
+@set SECTION Editing
+@section @value{SECTION}
+@deffn {@value{SECTION}} v filename
+
+Opens text editor and starts editing the file named "filename". If
+filename is empty and a buffer is already open, editor will pick up
+where it left. Otherwise, an untitled buffer will be created.
+@end deffn
+
+@node Strings
+@set SECTION Strings
+@section @value{SECTION}
+@deffn {@value{SECTION}} .( text@code{)}
+
+Print a string. Example: @code{.( foo)}
+@end deffn
+
+@deffn {@value{SECTION}} ." text@code{"}
+
+Compile-time version of "@code{.(}". Example: @code{: foo ." bar" ;}
+@end deffn
+
+@deffn {@value{SECTION}} s" text@code{"} ( -- caddr u )
+
+Define a string. Compile-time only! Example: @code{s" foo"}.
+@end deffn
+
+@deffn {@value{SECTION}} count ( str -- caddr u )
+
+Returns data address and length of the counted string str.
+@end deffn
+
+@deffn {@value{SECTION}} type ( caddr u -- )
+
+Prints a string.
+@end deffn
+
+@deffn {@value{SECTION}} /string ( caddr u n -- caddr+n u-n )
+
+Adjusts the string by n characters.
+@end deffn
+
+@node Number Formatting
+@set SECTION Number Formatting
+@section @value{SECTION}
+For more info about number formatting, read Starting Forth!
+
+@deffn {@value{SECTION}} @math{<}@hashchar{}
+
+Begins the number conversion process.
+@end deffn
+
+@deffn {@value{SECTION}} @hashchar{} ( ud -- ud )
+
+Converts one digit and puts it in the start of the output string.
+@end deffn
+
+@deffn {@value{SECTION}} s@hashchar{} ( ud -- ud )
+
+Calls @hashchar{} once, and repeats until the number is zero.
+@end deffn
+
+@deffn {@value{SECTION}} hold ( ch -- )
+
+Inserts the char at the start of the output string.
+@end deffn
+
+@deffn {@value{SECTION}} sign ( a -- )
+
+If @code{a} is negative, inserts a minus sign at the start of the output
+string.
+@end deffn
+
+@deffn {@value{SECTION}} @hashchar{}@math{>} ( xd -- addr u )
+
+Drops xd and returns the output string.
+@end deffn
+
+@node Vectored Execution
+@set SECTION Vectored Execution
+@section @value{SECTION}
+@deffn {@value{SECTION}} ' xxx ( -- addr )
+
+Find execution token of word @code{xxx}.
+@end deffn
+
+@deffn {@value{SECTION}} find ( cstr -- cstr 0 | xt -1 | xt 1 )
+
+Find the definition named in the counted string cstr. If the definition
+is not found, return cstr and 0, otherwise return the execution token.
+If the definition is immediate, also return 1, otherwise also return -1.
+@end deffn
+
+@deffn {@value{SECTION}} find-name ( caddr u -- 0 | nt )
+
+Get the name token (dictionary pointer) of word named in the string, or
+0 if the word is not found.
+@end deffn
+
+@deffn {@value{SECTION}} execute ( xt -- )
+
+Execute the execution token on top of stack.
+@end deffn
+
+@deffn {@value{SECTION}} @math{>}xt ( addr -- xt )
+
+Get execution token of word at adress @code{addr}.
+@end deffn
+
+@node Debugging
+@set SECTION Debugging
+@section @value{SECTION}
+@deffn {@value{SECTION}} words
+
+List all defined words.
+@end deffn
+
+@deffn {@value{SECTION}} size
+
+@code{size foo} prints size of @code{foo}.
+@end deffn
+
+@deffn {@value{SECTION}} dump ( n -- )
+
+Memory dump starting at address n.
+@end deffn
+
+@deffn {@value{SECTION}} n
+
+Continue memory dump where last one stopped.
+@end deffn
+
+@node System State
+@set SECTION System State
+@section @value{SECTION}
+@deffn {@value{SECTION}} latest (value)
+
+Address of latest defined header.
+@end deffn
+
+@deffn {@value{SECTION}} here (value)
+
+Write position of the Forth compiler (usually first unused byte of code
+space). Many C64 assemblers refer to this as program counter or
+@code{*}.
+@end deffn
+
+@deffn {@value{SECTION}} pad ( -- addr )
+
+Address of the @code{pad}, a 161-byte memory region that can be used
+freely by user words. No built-in words will modify this region.
+@end deffn
+
+@deffn {@value{SECTION}} marker name ( -- )
+
+Creates a word that when called, forgets itself and all words that were
+defined after it. Example:
+
+@verbatim
+marker forget
+: x ;
+forget
+@end verbatim
+@end deffn
+
+@deffn {@value{SECTION}} dowords ( xt -- )
+
+Remove @code{xt} from the stack. Execute @code{xt} once for every word
+in the wordlist, passing the name token @code{nt} of the word to
+@code{xt}, until the wordlist is exhausted or until @code{xt} returns
+false. The invoked @code{xt} has the stack effect
+@code{( k * x nt -- l * x flag)}. If @code{flag} is true, @code{dowords}
+will continue on to the next name, otherwise it will return.
+
+@verbatim
+\ from debug.fs
+: (words) more name>string space 1 ;
+: words ['] (words) dowords ;
+@end verbatim
+@end deffn
+
+@node Disk I/O
+@set SECTION Disk I/O
+@section @value{SECTION}
+@deffn {@value{SECTION}} include filename ( -- )
+
+Load and parse file. Example: @code{include test}
+@end deffn
+
+@deffn {@value{SECTION}} included ( filenameptr filenamelength -- )
+
+Load and parse file.
+@end deffn
+
+@deffn {@value{SECTION}} require filename ( -- )
+
+Like include, except that load is skipped if the file is already loaded.
+@end deffn
+
+@deffn {@value{SECTION}} required ( filenameptr filenamelength -- )
+
+Like included, except that load is skipped if the file is already
+loaded.
+@end deffn
+
+@deffn {@value{SECTION}} loadb ( filenameptr filenamelength dst -- endaddr )
+
+Load binary block to dst. Returns 0 on failure, otherwise address after
+last written byte.
+@end deffn
+
+@deffn {@value{SECTION}} saveb ( start end filenameptr filenamelength -- )
+
+Save binary block.
+@end deffn
+
+@deffn {@value{SECTION}} device ( device@hashchar{} -- )
+
+Switches the active device.
+@end deffn
+
+@deffn {@value{SECTION}} save-forth filename ( -- )
+
+Saves the forth to the given filename.
+@end deffn
+
+@deffn {@value{SECTION}} ls ( -- )
+
+Load disk directory to here and display, with optional drive @hashchar{} and
+wildcards. Example: @code{ls \$1:*=p} Load directory, drive 1 only prg
+files.
+@end deffn
+
+@deffn {@value{SECTION}} rdir ( addr -- )
+
+Display disk directory previously loaded to addr.
+@end deffn
+
+@menu
+* DOS Commands::
+* Low-Level Device I/O::
+@end menu
+
+@node DOS Commands
+@subsection DOS Commands
+Words for sending DOS commands to drives and reading drive status are
+available by including @code{dos}.
+
+@deffn {@value{SECTION}} send-cmd ( addr length -- )
+
+Writes the given string to secondary address 15 on the current device,
+and prints the drive's response. The following example defines a word,
+@code{backup} that creates a copy of @code{durexforth} called
+@code{backup}:
+
+@verbatim
+        : backup s" copy0:backup=durexforth" send-cmd ;
+        backup
+@end verbatim
+@end deffn
+
+@deffn {@value{SECTION}} dos command ( -- )
+
+Sends @code{command} to the current device's command channel, and prints
+the response. Note that the remainder of the line is treated as part of
+the command. This makes it possible to refer to file names that contain
+spaces, but means that @code{dos} and its command should be on their own
+line, or the last words on a line. Example: @code{dos scratch0:old file}
+will delete a file named ``@code{old file}''.
+@end deffn
+
+@node Low-Level Device I/O
+@subsection Low-Level Device I/O
+For more advanced uses, words corresponding to the standard Commodore
+Kernal IO routines are available by including @code{io}.
+
+@deffn {@value{SECTION}} open ( filenameptr filenamelength file@hashchar{} secondary-addr -- ioresult )
+
+Open a logical file.
+@end deffn
+
+@deffn {@value{SECTION}} chkin ( file@hashchar{} -- ioresult )
+
+Use a logical file as input device.
+@end deffn
+
+@deffn {@value{SECTION}} chkout ( file@hashchar{} -- ioresult )
+
+Use a logical file as output device.
+@end deffn
+
+@deffn {@value{SECTION}} clrchn ( -- )
+
+Resets input and output to the keyboard and screen.
+@end deffn
+
+@deffn {@value{SECTION}} close ( file@hashchar{} -- )
+
+Close a logical file.
+@end deffn
+
+@deffn {@value{SECTION}} readst ( -- status )
+
+Returns the status of the last IO operation. For serial-bus devices,
+@code{\$01} = write timeout, @code{\$02} = read timeout, @code{\$40} = end
+of file (EOI), @code{\$80} = device not present.
+@end deffn
+
+@deffn {@value{SECTION}} chrin ( -- char)
+
+Reads a character from the current input device.
+@end deffn
+
+@deffn {@value{SECTION}} ioabort ( ioresult -- )
+
+Handles error conditions for @code{open}, @code{chkin} and
+@code{chkout}. On failure, print error message and abort.
+@end deffn
+
+As per the underlying Kernal routines, @code{chrin} does not check for
+end-of-file or any other error condition. @code{readst} should be called
+to ensure that the returned character is valid.
+
+The @code{ioresult} value returned by @code{open}, @code{chkin} and
+@code{chkout} is 0 on success, or a Kernal error number if an error
+occurred.
+
+Note that use of low-level device I/O may interfere with disk accesses
+done by durexForth and the @code{V} editor. The following guidelines
+should be followed to avoid interference:
+
+@itemize
+@item
+Avoid using file numbers 15 and below (remember, any number up to 127
+can be used as a file number).
+
+@item
+Only use input/output redirection (@code{chkin} and @code{chkout})
+within word definitions, and ensure that @code{clrchn} is called before
+exit.
+
+@item
+Close files as soon as they are no longer needed.
+
+@item
+If multiple files are open, always call @code{clrchn} to end any serial
+bus transactions before calling @code{open} or switching between files
+with @code{chkin} or @code{chkout}.
+
+@end itemize
+
+@node Compatibility
+@set SECTION Compatibility
+@section @value{SECTION}
+The @code{compat} module contains various words that are not deemed
+necessary for enjoyable DurexForth operation, but still must be provided
+to comply with the Forth 2012 core standard.
+
+@deffn {@value{SECTION}} environment? ( addr u -- 0 )
+
+Environmental query.
+@end deffn
+
+@deffn {@value{SECTION}} cell+ ( n -- n+2 )
+
+2+
+@end deffn
+
+@deffn {@value{SECTION}} cells ( n -- n*2 )
+
+2*
+@end deffn
+
+@deffn {@value{SECTION}} char+ ( n -- n+1 )
+
+1+
+@end deffn
+
+@deffn {@value{SECTION}} align ( -- )
+
+No-op
+@end deffn
+
+@deffn {@value{SECTION}} aligned ( -- )
+
+No-op
+@end deffn
+
+@deffn {@value{SECTION}} chars ( -- )
+
+No-op
+@end deffn
+
+@deffn {@value{SECTION}} 2@@ ( address -- x1 x2 )
+
+Fetch 32-bit value from address. x2 is stored at address, and x1 is
+stored at address + 2.
+@end deffn
+
+@deffn {@value{SECTION}} 2! ( x1 x2 address -- )
+
+Store 32-bit value to address. x2 is stored at address, and x1 is stored
+at address + 2.
+@end deffn
+
+@deffn {@value{SECTION}} 2over ( a b c d -- a b c d a b )
+
+Copies cell pair a b to top of stack.
+@end deffn
+
+@deffn {@value{SECTION}} 2swap ( a b c d -- c d a b )
+
+Exchanges the top two cell pairs.
+@end deffn
+
+@deffn {@value{SECTION}} @math{>}number ( ud addr u -- ud addr2 u2 )
+
+Converts the string in @code{addr u} to digits, using @code{BASE}, and
+adds each digit into ud after multiplying it with @code{BASE}.
+@code{addr2 u2} contains the part of the string that was not converted.
+@end deffn
+
+@deffn {@value{SECTION}} @math{>}body ( xt -- addr )
+
+Returns the data field address that belongs to the execution token.
+Example use: @code{' foo >body}
+@end deffn
+
+@deffn {@value{SECTION}} sm/rem ( d n -- r q )
+
+Divide double-cell number d by n, giving the symmetric quotient q and
+the remainder r. Values are signed.
+@end deffn
+
+@node Kernel Calls
+@set SECTION Kernel Calls
+@section @value{SECTION}
+Safe kernel calls may be done from Forth words using @code{sys} ( addr
+-- ). The helper variables @code{ar}, @code{xr}, @code{yr} and @code{sr}
+can be used to set arguments and get results through the @var{a}, @var{x}, @var{y} and
+status registers.
+
+Example: @code{'0' ar c! \$ffd2 sys} calls the CHROUT routine, which
+prints @code{0} on screen.
+
+@node Turn-key Utilities
+@set SECTION Turn-key Utilities
+@section @value{SECTION}
+These words are available by including @code{turnkey}.
+
+@deffn {@value{SECTION}} top ( -- addr )
+
+Address of the top of the dictionary, default: @code{\$9fff}.
+@end deffn
+
+@deffn {@value{SECTION}} top! ( addr -- )
+
+Relocates the dictionary to @code{addr}. Example:
+
+@verbatim
+\ not using \$a000 block, give all memory to dictionary
+\$cbff top!
+@end verbatim
+@end deffn
+
+@deffn {@value{SECTION}} save-pack filename ( -- )
+
+Saves a compact version of forth to the given filename.
+@end deffn
+
+@deffn {@value{SECTION}} save-prg filename ( -- )
+
+Saves a forth program with no dictionary to filename.
+@end deffn
+
+Further details on use of these words outlined in the Turn-key Operation
+section of the tutorial.
+

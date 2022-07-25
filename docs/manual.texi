@@ -1,0 +1,45 @@
+\input texinfo
+@c %**start of header
+@settitle durexForth: Operators Manual
+@afourpaper
+
+@ifinfo
+@comment Indices used in "pick" were too ugly
+@alias sub=var
+@end ifinfo
+@c %**end of header
+
+@contents
+
+@node Top
+@top durexForth: Operator's Manual
+
+@menu
+* Forth Words::
+
+* Word Anatomy::
+
+* Index::
+@end menu
+
+input releaselicense.tex
+
+@c @include intro.texi
+@c @include tutorial.texi
+@c @include editor.texi
+@include words.texi
+@c @include gfx.texi
+@c @include sid.texi
+@c @include mml.texi
+@c @include asm.texi
+
+@c @include mnemonics.texi
+@c @include memmap.texi
+@include anatomy.texi
+
+@node Index
+@unnumbered Index
+
+@printindex fn
+
+@bye
