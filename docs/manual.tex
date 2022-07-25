@@ -1,4 +1,8 @@
 \documentclass[a4paper]{report}
+% default comma delimiter in index is confusing next to Forth words
+\begin{filecontents}{\jobname.mst}
+        delim_0 " \\hfill "
+\end{filecontents}
 \usepackage{microtype}
 \usepackage{imakeidx}
 \usepackage{hyperref}
