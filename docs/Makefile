@@ -7,7 +7,7 @@ REV_DATE := $(shell git log -1 --format=%ai)
 
 # generic rules
 
-all:	durexforth.pdf
+all:	durexforth.pdf durexforth.html durexforth.info
 
 SECTIONS = release_license.tex \
         intro.tex tutorial.tex editor.tex words.tex gfx.tex sid.tex mml.tex \
@@ -22,6 +22,12 @@ durexforth.idx: manual.tex $(SECTIONS)
 
 durexforth.pdf:	manual.tex $(SECTIONS) durexforth.ind
 	pdflatex -jobname=durexforth manual.tex
+
+durexforth.html: manual.tex $(SECTIONS)
+	hevea -fix -o $@ $<
+
+durexforth.info: manual.tex $(SECTIONS)
+	hevea -fix -info -o $@ $<
 
 release_license.tex: params-g.tex
 	diff -q $^ $^.tmp; if [ $$? -eq 1 ]; then touch $@; fi
