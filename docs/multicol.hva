@@ -1,0 +1,12 @@
+\ProvidesPackage{multicol}%
+% Ugly hack to add multiple columns to HTML
+\newstyle{.columns1}{columns:1}%
+\newstyle{.columns2}{columns:2}%
+\newstyle{.columns3}{columns:3}%
+\newstyle{.columns4}{columns:4}%
+\newstyle{.columns5}{columns:5}%
+\newstyle{.columns6}{columns:6}%
+\newcommand{\multicols}[1]{%
+\@span{columns:#1}%
+\setenvclass{verbatim}{columns#1 verbatim}}%
+\newcommand{\endmulticols}{}%
