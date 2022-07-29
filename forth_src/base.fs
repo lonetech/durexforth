@@ -201,5 +201,8 @@ $21 + + -
 . .( bytes remain.) cr
 
 .( save new durexforth..)
-save-pack @0:durexforth
-.( ok!) cr
+:noname
+save-pack
+." ok!" cr \ Note: may not show up because jam is faster than VIC
+[ 2 c, ] \ ( Jam to quit Vice emulator )
+; execute @0:durexforth

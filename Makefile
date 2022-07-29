@@ -12,8 +12,14 @@ DEPLOY_NAME = durexforth-$(TAG_DEPLOY)
 DISK_IMAGE = durexforth.$(DISK_SUF)
 
 X64_OPTS = -warp
-X64 = x64sc
+X64 = x64
 X64_OPTS += +confirmonexit
+# Load faster
+X64_OPTS += -autostartprgmode 1 +drive8truedrive -virtualdev8
+# Exit automatically, whether failure or success
+X64_OPTS += -jamaction 5 -limitcycles 500000000
+# Run headless and save screenshot of results
+X64_OPTS += -exitscreenshot build/screenshot -console +sound
 
 SRC_DIR = forth_src
 SRC_NAMES = base debug v asm gfx gfxdemo rnd sin ls turtle fractals \
@@ -28,20 +34,30 @@ SEPARATOR_NAME3 = '=-=---=-=---=-=,s'
 
 all: $(DISK_IMAGE)
 
-deploy: $(DISK_IMAGE) asm_src/cart.asm
+.PHONY: deploy
+deploy deploy/$(DEPLOY_NAME).$(DISK_SUF): $(DISK_IMAGE) asm_src/cart.asm
 	rm -rf deploy
 	mkdir deploy
 	cp $(DISK_IMAGE) deploy/$(DEPLOY_NAME).$(DISK_SUF)
 	$(X64) $(X64_OPTS) deploy/$(DEPLOY_NAME).$(DISK_SUF)
 	# make cartridge
-	c1541 -attach deploy/$(DEPLOY_NAME).$(DISK_SUF) -read durexforth
-	mv durexforth build/durexforth
+	c1541 -attach deploy/$(DEPLOY_NAME).$(DISK_SUF) -read durexforth build/durexforth
 	@$(AS) asm_src/cart.asm
 	cartconv -t simon -i build/cart.bin -o deploy/$(DEPLOY_NAME).crt -n "DUREXFORTH $(TAG_DEPLOY_DOT)"
 	asciidoctor-pdf -o deploy/$(DEPLOY_NAME).pdf docs_src/index.adoc
 
-durexforth.prg: asm_src/*.asm
-	@$(AS) -I asm_src asm_src/durexforth.asm
+build/words: deploy/$(DEPLOY_NAME).$(DISK_SUF)
+	# include viceutil
+	# 9 device
+	# dump-labels
+	cat build/header 'dump-labels here 2 c, execute' | ext/petcom - > build/makewords
+	$(X64) $(X64_OPTS) -fs9 build +drive9truedrive -virtualdev9 -keybuf 'require viceutil 9 device include makewords\x0d' $<
+
+forth.lbl: build/words
+	petcat -text -o $@ $<
+
+durexforth.prg acme.lbl: asm_src/*.asm
+	@$(AS) --vicelabels acme.lbl -I asm_src asm_src/durexforth.asm
 
 .ONESHELL:
 $(DISK_IMAGE): durexforth.prg Makefile ext/petcom $(SRCS)
