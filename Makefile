@@ -18,8 +18,11 @@ X64_OPTS += +confirmonexit
 X64_OPTS += -autostartprgmode 1 +drive8truedrive -virtualdev8
 # Exit automatically, whether failure or success
 X64_OPTS += -jamaction 5 -limitcycles 500000000
-# Run headless and save screenshot of results
-X64_OPTS += -exitscreenshot build/screenshot -console +sound
+# Run quietly headless
+X64_OPTS += -console +sound
+
+# Save an execution log for profiling
+X64_PROF = -moncommands trexec -monlogname build/monitor.log -monlog
 
 SRC_DIR = forth_src
 SRC_NAMES = base debug v asm gfx gfxdemo rnd sin ls turtle fractals \
@@ -39,20 +42,18 @@ deploy deploy/$(DEPLOY_NAME).$(DISK_SUF): $(DISK_IMAGE) asm_src/cart.asm
 	rm -rf deploy
 	mkdir deploy
 	cp $(DISK_IMAGE) deploy/$(DEPLOY_NAME).$(DISK_SUF)
-	$(X64) $(X64_OPTS) deploy/$(DEPLOY_NAME).$(DISK_SUF)
+	$(X64) $(X64_OPTS) $(X64_PROF) -exitscreenshot build/base deploy/$(DEPLOY_NAME).$(DISK_SUF)
 	# make cartridge
 	c1541 -attach deploy/$(DEPLOY_NAME).$(DISK_SUF) -read durexforth build/durexforth
 	@$(AS) asm_src/cart.asm
 	cartconv -t simon -i build/cart.bin -o deploy/$(DEPLOY_NAME).crt -n "DUREXFORTH $(TAG_DEPLOY_DOT)"
 	asciidoctor-pdf -o deploy/$(DEPLOY_NAME).pdf docs_src/index.adoc
 
-build/words: deploy/$(DEPLOY_NAME).$(DISK_SUF)
+forth.lbl: deploy/$(DEPLOY_NAME).$(DISK_SUF)
 	-rm $@
 	echo '  8 device require viceutil 9 device dump-labels here 2 c, execute' | ext/petcom - > build/makewords
-	$(X64) $(X64_OPTS) -fs9 build +drive9truedrive -virtualdev9 -keybuf 'require io 9 device include makewords\x0d' $<
-
-forth.lbl: build/words
-	petcat -text -o $@ $<
+	$(X64) $(X64_OPTS) -exitscreenshot build/viceutil -fs9 build +drive9truedrive -virtualdev9 -keybuf 'require io 9 device include makewords\x0d' $<
+	petcat -text -o $@ build/words
 
 durexforth.prg acme.lbl: asm_src/*.asm
 	@$(AS) --vicelabels acme.lbl -I asm_src asm_src/durexforth.asm
