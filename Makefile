@@ -47,11 +47,9 @@ deploy deploy/$(DEPLOY_NAME).$(DISK_SUF): $(DISK_IMAGE) asm_src/cart.asm
 	asciidoctor-pdf -o deploy/$(DEPLOY_NAME).pdf docs_src/index.adoc
 
 build/words: deploy/$(DEPLOY_NAME).$(DISK_SUF)
-	# include viceutil
-	# 9 device
-	# dump-labels
-	cat build/header 'dump-labels here 2 c, execute' | ext/petcom - > build/makewords
-	$(X64) $(X64_OPTS) -fs9 build +drive9truedrive -virtualdev9 -keybuf 'require viceutil 9 device include makewords\x0d' $<
+	-rm $@
+	echo '  8 device require viceutil 9 device dump-labels here 2 c, execute' | ext/petcom - > build/makewords
+	$(X64) $(X64_OPTS) -fs9 build +drive9truedrive -virtualdev9 -keybuf 'require io 9 device include makewords\x0d' $<
 
 forth.lbl: build/words
 	petcat -text -o $@ $<
