@@ -22,7 +22,8 @@ X64_OPTS += -jamaction 5 -limitcycles 500000000
 X64_OPTS += -console +sound
 
 # Save an execution log for profiling
-X64_PROF = -moncommands trexec -monlogname build/monitor.log -monlog
+#X64_PROF = -moncommands trexec -monlogname monitor.log -monlog
+X64_PROF = -moncommands trexec -nativemonitor
 
 SRC_DIR = forth_src
 SRC_NAMES = base debug v asm gfx gfxdemo rnd sin ls turtle fractals \
@@ -42,7 +43,7 @@ deploy deploy/$(DEPLOY_NAME).$(DISK_SUF): $(DISK_IMAGE) asm_src/cart.asm
 	rm -rf deploy
 	mkdir deploy
 	cp $(DISK_IMAGE) deploy/$(DEPLOY_NAME).$(DISK_SUF)
-	$(X64) $(X64_OPTS) $(X64_PROF) -exitscreenshot build/base deploy/$(DEPLOY_NAME).$(DISK_SUF)
+	$(X64) $(X64_OPTS) $(X64_PROF) -exitscreenshot build/base deploy/$(DEPLOY_NAME).$(DISK_SUF) | gforth-fast profile.fs > profile.txt
 	# make cartridge
 	c1541 -attach deploy/$(DEPLOY_NAME).$(DISK_SUF) -read durexforth build/durexforth
 	@$(AS) asm_src/cart.asm
