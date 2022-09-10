@@ -40,6 +40,7 @@ all: $(DISK_IMAGE)
 
 .PHONY: deploy
 deploy deploy/$(DEPLOY_NAME).$(DISK_SUF): $(DISK_IMAGE) asm_src/cart.asm
+	set -e
 	rm -rf deploy
 	mkdir deploy
 	cp $(DISK_IMAGE) deploy/$(DEPLOY_NAME).$(DISK_SUF)
@@ -52,6 +53,7 @@ deploy deploy/$(DEPLOY_NAME).$(DISK_SUF): $(DISK_IMAGE) asm_src/cart.asm
 
 forth.lbl: deploy/$(DEPLOY_NAME).$(DISK_SUF)
 	-rm $@
+	set -e
 	echo '  8 device require viceutil 9 device dump-labels here 2 c, execute' | ext/petcom - > build/makewords
 	$(X64) $(X64_OPTS) -exitscreenshot build/viceutil -fs9 build +drive9truedrive -virtualdev9 -keybuf 'require io 9 device include makewords\x0d' $<
 	petcat -text -o $@ build/words
